@@ -14,6 +14,7 @@ import {
   Download,
   User as UserIcon,
   ArrowUpDown,
+  Sparkles,
 } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import { Theme } from '../hooks/useTheme';
@@ -39,6 +40,7 @@ interface HeaderProps {
   isStandalone?: boolean;
   onToggleReorderMode?: () => void;
   isReorderMode?: boolean;
+  onOpenLanding?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -61,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
   isStandalone = false,
   onToggleReorderMode,
   isReorderMode = false,
+  onOpenLanding,
 }) => {
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
 
@@ -230,6 +233,21 @@ export const Header: React.FC<HeaderProps> = ({
                             <span>Install App</span>
                           </div>
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Free</span>
+                        </button>
+                      )}
+
+                      {/* About Daybit / Landing Page */}
+                      {onOpenLanding && (
+                        <button
+                          onClick={() => { setIsMobileMenuOpen(false); onOpenLanding(); }}
+                          className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-amber-500 rounded-xl cursor-pointer"
+                          role="menuitem"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-amber-500" />
+                            <span>About Daybit</span>
+                          </div>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 dark:text-amber-400">Intro</span>
                         </button>
                       )}
                     </div>
@@ -520,6 +538,21 @@ export const Header: React.FC<HeaderProps> = ({
                           <span>Install App</span>
                         </div>
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Free</span>
+                      </button>
+                    )}
+
+                    {/* About Daybit / Landing Page */}
+                    {onOpenLanding && (
+                      <button
+                        onClick={() => { setIsDesktopMenuOpen(false); onOpenLanding(); }}
+                        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-amber-500 rounded-xl cursor-pointer"
+                        role="menuitem"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-500" />
+                          <span>About Daybit</span>
+                        </div>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 dark:text-amber-400">Intro</span>
                       </button>
                     )}
                   </div>

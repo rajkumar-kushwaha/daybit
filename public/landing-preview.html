@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daybit — Build better habits. One day at a time.</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(1.05); }
+    }
+    .animate-glow {
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    /* Aesthetic Metallic Alloy Gradient System */
+    body.theme-alloy {
+      background-color: #070a13;
+      background-image: 
+        radial-gradient(ellipse 90% 55% at 50% -5%, rgba(45, 60, 95, 0.42) 0%, transparent 70%),
+        radial-gradient(ellipse 65% 45% at 88% 22%, rgba(180, 83, 9, 0.16) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 12% 55%, rgba(30, 48, 80, 0.25) 0%, transparent 65%),
+        linear-gradient(180deg, #090e1a 0%, #060912 100%);
+      background-attachment: fixed;
+    }
+    .theme-alloy #sticky-header {
+      background: rgba(9, 14, 26, 0.88) !important;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+      backdrop-filter: blur(20px) !important;
+    }
+    .theme-alloy #mockup-card,
+    .theme-alloy .faq-item,
+    .theme-alloy #how-it-works .p-5,
+    .theme-alloy #features .p-6,
+    .theme-alloy #cta-card {
+      background: linear-gradient(180deg, rgba(20, 28, 48, 0.78) 0%, rgba(12, 17, 30, 0.95) 100%) !important;
+      border: 1px solid rgba(148, 163, 184, 0.16) !important;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+    .theme-alloy #browser-chrome {
+      background: rgba(8, 12, 22, 0.95) !important;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+    }
+    .theme-alloy #float-badge-top,
+    .theme-alloy #float-badge-bottom {
+      background: rgba(15, 22, 38, 0.95) !important;
+      border: 1px solid rgba(148, 163, 184, 0.2) !important;
+      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out, opacity 0.25s ease-out, margin-top 0.2s ease-out;
+      opacity: 0;
+    }
+    .faq-item.active .faq-answer {
+      max-height: 220px;
+      opacity: 1;
+      margin-top: 0.75rem;
+    }
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+    }
+  </style>
+</head>
+<body id="preview-body" class="theme-alloy text-slate-100 antialiased min-h-screen transition-colors duration-300 font-sans selection:bg-amber-500 selection:text-white">
+
+  <!-- ALWAYS VISIBLE STICKY TOP NAVIGATION BAR (Fixed while scrolling) -->
+  <header id="sticky-header" class="sticky top-0 z-40 backdrop-blur-xl bg-[#090e1a]/88 border-b border-slate-700/40 transition-colors duration-300">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3 select-none shrink-0 cursor-pointer group">
+        <!-- Official App Flame Emblem Logo -->
+        <img
+          src="/icons/flame-emblem.png"
+          alt="Daybit"
+          class="w-10 h-10 sm:w-11 sm:h-11 object-contain shrink-0 drop-shadow-[0_0_16px_rgba(245,158,11,0.45)] transition-transform duration-300 group-hover:scale-105"
+        />
+        <div class="flex items-center font-black tracking-[-0.035em] text-[1.5rem] sm:text-[1.75rem] leading-none select-none">
+          <span id="brand-text-prefix" class="text-white transition-colors duration-200">
+            Day
+          </span>
+          <span class="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent drop-shadow-xs">
+            bit
+          </span>
+        </div>
+      </div>
+
+      <!-- Center Navigation Links -->
+      <div class="hidden md:flex items-center gap-8 lg:gap-9 text-[17px] font-medium text-slate-200">
+        <a href="#how-it-works" class="hover:text-amber-400 transition-colors">How it works</a>
+        <a href="#features" class="hover:text-amber-400 transition-colors">Features</a>
+        <a href="#faq" class="hover:text-amber-400 transition-colors">FAQ</a>
+      </div>
+
+      <!-- Top Right Actions -->
+      <div class="flex items-center gap-3">
+        <button onclick="triggerAction('login')" class="text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
+          Sign In
+        </button>
+        <button onclick="triggerAction('start')" class="text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-3.5 sm:px-4 py-2 rounded-xl shadow-md shadow-orange-500/25 transition-all transform active:scale-95 flex items-center gap-1.5 cursor-pointer">
+          <span>Start Free</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-16 text-center relative overflow-hidden">
+
+    <!-- Pill Badge -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-semibold mb-6 shadow-xs tracking-wide">
+      <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+      <span>A CALM PLACE FOR YOUR DAILY HABITS</span>
+    </div>
+
+    <!-- Clean, High-Impact Headline (Sleek Proportions) -->
+    <h1 id="hero-headline" class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.15] max-w-3xl mx-auto mb-5 text-white">
+      Build better habits. <br />
+      <span class="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">
+        One day at a time.
+      </span>
+    </h1>
+
+    <!-- Balanced Subtitle -->
+    <p id="hero-sub" class="text-slate-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto mb-8 font-normal leading-relaxed">
+      No confusing points, coins, or clutter. Just a clean view of your month, your streaks, and your daily progress.
+    </p>
+
+    <!-- INTERACTIVE MOCKUP SHOWCASE (Browser Window + Floating Overlap Badges) -->
+    <div id="demo" class="max-w-2xl mx-auto text-left relative mt-4">
+      
+      <!-- Top Right Floating Card (Overlapping corner, like reference) -->
+      <div id="float-badge-top" class="absolute -top-5 -right-2 sm:-right-4 z-20 bg-[#0f1626] border border-slate-700/60 rounded-2xl px-4 py-2.5 shadow-xl flex items-center gap-3 transform hover:scale-105 transition-all duration-200">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CONSISTENCY SCORE</span>
+          <span class="text-sm sm:text-base font-black text-white flex items-center gap-1.5">
+            <span class="text-amber-400">🔥 100%</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">+14 Days</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Browser Frame (Single clean container with single dark black border, matching #0f1422) -->
+      <div id="mockup-card" class="alloy-card rounded-2xl overflow-hidden shadow-2xl relative z-10">
+        
+        <!-- Browser Top Chrome Bar -->
+        <div id="browser-chrome" class="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-slate-800 bg-[#080c16]">
+          <!-- Window Traffic Light Dots -->
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></span>
+          </div>
+
+          <!-- Centered Brand Bar (Plain single dark border, Daybit brand only) -->
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#121829] border border-slate-800 text-xs font-medium text-slate-400 select-none">
+            <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span class="text-slate-200 font-semibold text-xs tracking-wide">Daybit</span>
+          </div>
+
+          <!-- Subtle Right Status -->
+          <div class="text-[11px] font-medium text-slate-500 hidden sm:block">
+            Today • Nov 2
+          </div>
+        </div>
+
+        <!-- Card Body: Interactive Habits -->
+        <div class="p-5 sm:p-6 space-y-3">
+          <!-- Habit 1: Read 20 Pages -->
+          <div class="bg-[#121829] border border-slate-800 rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 transition-all hover:border-slate-700">
+            <div class="flex items-center gap-3 min-w-0">
+              <!-- Book Icon: perfectly centered inside container, generous padding -->
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+                <svg width="20" height="20" class="w-5 h-5 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-bold text-white truncate">Read 20 Pages</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md text-indigo-300 bg-indigo-500/15 border border-indigo-500/20">Learning</span>
+                  <span class="text-xs text-slate-400 font-medium">Target: 25 days/mo</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="toggleHabit(this, 'indigo')" class="habit-toggle-btn w-8 h-8 rounded-full bg-indigo-500 border-2 border-indigo-500 flex items-center justify-center transition-all cursor-pointer shadow-[0_0_0_3px_rgba(99,102,241,0.2),0_2px_10px_rgba(99,102,241,0.35)] shrink-0">
+              <svg class="check-icon w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Habit 2: Morning Workout -->
+          <div class="bg-[#121829] border border-slate-800 rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 transition-all hover:border-slate-700">
+            <div class="flex items-center gap-3 min-w-0">
+              <!-- Workout Icon: perfectly centered inside container, generous padding -->
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <svg width="20" height="20" class="w-5 h-5 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-bold text-white truncate">Morning Workout</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md text-emerald-300 bg-emerald-500/15 border border-emerald-500/20">Health</span>
+                  <span class="text-xs text-slate-400 font-medium">Target: 20 days/mo</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="toggleHabit(this, 'emerald')" class="habit-toggle-btn w-8 h-8 rounded-full bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center transition-all cursor-pointer shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_2px_10px_rgba(16,185,129,0.35)] shrink-0">
+              <svg class="check-icon w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Habit 3: Drink 2L Water -->
+          <div class="bg-[#121829] border border-slate-800 rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 transition-all hover:border-slate-700">
+            <div class="flex items-center gap-3 min-w-0">
+              <!-- Water Droplets Icon: perfectly centered inside container, generous padding -->
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                <svg width="20" height="20" class="w-5 h-5 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/>
+                  <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-bold text-white truncate">Drink 2L Water</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md text-cyan-300 bg-cyan-500/15 border border-cyan-500/20">Daily Wellness</span>
+                  <span class="text-xs text-slate-400 font-medium">Target: 30 days/mo</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="toggleHabit(this, 'cyan')" class="habit-toggle-btn w-8 h-8 rounded-full border-2 border-slate-600 hover:border-cyan-400 flex items-center justify-center transition-all cursor-pointer shrink-0">
+              <svg class="check-icon w-4 h-4 text-white hidden" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Interaction Hint -->
+          <div class="pt-1.5 text-center">
+            <span class="text-xs font-medium text-slate-400">👆 Tap circles to test checking off a habit</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Right Floating Badge (Overlapping corner, like reference) -->
+      <div id="float-badge-bottom" class="absolute -bottom-4 -right-1 sm:-right-4 z-20 bg-[#0f1626] border border-slate-700/60 rounded-full px-3.5 py-1.5 shadow-xl flex items-center gap-2 text-xs transform hover:scale-105 transition-all duration-200">
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">100%</span>
+        <span class="text-slate-300 font-medium text-xs">Private & Offline Ready</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- HOW IT WORKS SECTION -->
+  <section id="how-it-works" class="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-slate-800/80 text-center">
+    <span class="text-xs font-bold text-amber-400 tracking-wider uppercase mb-2 block">Simple Routine</span>
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2.5">How it works in 3 simple steps</h2>
+    <p class="text-slate-400 text-xs sm:text-sm max-w-md mx-auto mb-10">No steep learning curve. Start building momentum in under a minute.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
+      <div class="p-5 sm:p-6 rounded-2xl bg-[#0f1422] border border-slate-800 space-y-2.5 hover:border-slate-700 transition-colors">
+        <span class="text-2xl font-black text-amber-400/80">01</span>
+        <h3 class="text-sm sm:text-base font-bold text-white">Pick your habits</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Choose 3 to 5 habits that matter most. Set custom colors and monthly targets.
+        </p>
+      </div>
+
+      <div class="p-5 sm:p-6 rounded-2xl bg-[#0f1422] border border-slate-800 space-y-2.5 hover:border-slate-700 transition-colors">
+        <span class="text-2xl font-black text-amber-400/80">02</span>
+        <h3 class="text-sm sm:text-base font-bold text-white">Check them off today</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Tap the circle as you complete each habit and keep your daily streak alive.
+        </p>
+      </div>
+
+      <div class="p-5 sm:p-6 rounded-2xl bg-[#0f1422] border border-slate-800 space-y-2.5 hover:border-slate-700 transition-colors">
+        <span class="text-2xl font-black text-amber-400/80">03</span>
+        <h3 class="text-sm sm:text-base font-bold text-white">Watch consistency grow</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          See your month fill with checkmarks. Small daily actions turn into real change.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUR SIMPLE FEATURES -->
+  <section id="features" class="max-w-5xl mx-auto px-4 sm:px-6 py-16 border-t border-slate-800/80">
+    <div class="text-center max-w-xl mx-auto mb-12">
+      <span class="text-xs font-bold text-amber-400 tracking-wider uppercase mb-2 block">Simple by Design</span>
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2.5">Everything you need. Nothing you don’t.</h2>
+      <p class="text-slate-400 text-xs sm:text-sm">Four clean features built to help you stay on track every day.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      
+      <!-- Feature 1 -->
+      <div class="p-6 rounded-2xl bg-[#0f1422] border border-slate-800 hover:border-amber-500/40 transition-all group">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2"/>
+            <path d="M3 10h18"/>
+            <path d="M8 2v4"/>
+            <path d="M16 2v4"/>
+            <path d="M8 14h.01"/>
+            <path d="M12 14h.01"/>
+            <path d="M16 14h.01"/>
+            <path d="M8 18h.01"/>
+            <path d="M12 18h.01"/>
+            <path d="M16 18h.01"/>
+          </svg>
+        </div>
+        <span class="text-[11px] font-bold text-amber-400 tracking-wider uppercase">MONTHLY GRID</span>
+        <h3 class="text-base sm:text-lg font-bold text-white mt-1 mb-2">See your month at a glance</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          See your entire month laid out in a clean calendar grid. Watching checkmarks connect gives you natural momentum to keep going.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="p-6 rounded-2xl bg-[#0f1422] border border-slate-800 hover:border-orange-500/40 transition-all group">
+        <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <span class="text-[11px] font-bold text-orange-400 tracking-wider uppercase">STAY HONEST</span>
+        <h3 class="text-base sm:text-lg font-bold text-white mt-1 mb-2">Focus on today, not yesterday</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Lock past dates with a tap so streaks stay 100% honest. When you build a streak in Daybit, you know you truly earned it.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="p-6 rounded-2xl bg-[#0f1422] border border-slate-800 hover:border-amber-500/40 transition-all group">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+          </svg>
+        </div>
+        <span class="text-[11px] font-bold text-amber-400 tracking-wider uppercase">DAILY STREAKS</span>
+        <h3 class="text-base sm:text-lg font-bold text-white mt-1 mb-2">Celebrate every single win</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Feel a satisfying tap and celebratory confetti with every checkmark. Reorder habits smoothly to match your daily routine.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="p-6 rounded-2xl bg-[#0f1422] border border-slate-800 hover:border-emerald-500/40 transition-all group">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+            <path d="M12 18h.01"/>
+          </svg>
+        </div>
+        <span class="text-[11px] font-bold text-emerald-400 tracking-wider uppercase">ALWAYS READY</span>
+        <h3 class="text-base sm:text-lg font-bold text-white mt-1 mb-2">Works anywhere, even offline</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Installs to your home screen like a native app on iPhone and Android. 100% private and offline-ready, with optional cloud sync.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ SECTION (Matching Chatwait reference proportions) -->
+  <section id="faq" class="max-w-2xl mx-auto px-4 sm:px-6 py-16 border-t border-slate-800/80">
+    <div class="text-center mb-10">
+      <span class="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-2 block">
+        FAQ
+      </span>
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+        The frequent questions
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2">
+        Everything you need to know about Daybit.
+      </p>
+    </div>
+
+    <!-- Accordion Cards List -->
+    <div class="space-y-3">
+
+      <!-- Question 1 -->
+      <div class="faq-item rounded-2xl border border-slate-800 bg-[#0f1422] p-4 sm:p-5 transition-all duration-200 hover:border-slate-700 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-sm sm:text-base font-semibold text-white">
+            Is Daybit completely free to use?
+          </span>
+          <div class="faq-icon w-7 h-7 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <div class="faq-answer text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Yes, 100% free. There are no paywalls, hidden subscriptions, or annoying popups. You get unlimited habits, full monthly views, streak tracking, and offline support completely free.
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="faq-item rounded-2xl border border-slate-800 bg-[#0f1422] p-4 sm:p-5 transition-all duration-200 hover:border-slate-700 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-sm sm:text-base font-semibold text-white">
+            Does Daybit work offline without internet?
+          </span>
+          <div class="faq-icon w-7 h-7 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <div class="faq-answer text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Yes! Daybit is built with local-first technology. It runs smoothly on airplanes, subways, or anywhere with zero signal. All your progress is stored directly on your device.
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="faq-item rounded-2xl border border-slate-800 bg-[#0f1422] p-4 sm:p-5 transition-all duration-200 hover:border-slate-700 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-sm sm:text-base font-semibold text-white">
+            What is the "Accountability Lock"?
+          </span>
+          <div class="faq-icon w-7 h-7 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <div class="faq-answer text-xs sm:text-sm text-slate-400 leading-relaxed">
+          The Accountability Lock lets you seal past dates so you can't go back and check off days you missed. It removes the temptation to fake your streaks and keeps you focused on showing up today.
+        </div>
+      </div>
+
+      <!-- Question 4 -->
+      <div class="faq-item rounded-2xl border border-slate-800 bg-[#0f1422] p-4 sm:p-5 transition-all duration-200 hover:border-slate-700 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-sm sm:text-base font-semibold text-white">
+            Is my personal habit data private?
+          </span>
+          <div class="faq-icon w-7 h-7 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <div class="faq-answer text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Completely. We do not sell your data or track your personal life. Your habits stay on your device. If you optionally choose to sign in with Google or Email, your data is securely synced to your private encrypted cloud backup.
+        </div>
+      </div>
+
+      <!-- Question 5 -->
+      <div class="faq-item rounded-2xl border border-slate-800 bg-[#0f1422] p-4 sm:p-5 transition-all duration-200 hover:border-slate-700 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-sm sm:text-base font-semibold text-white">
+            How do I install Daybit on my phone?
+          </span>
+          <div class="faq-icon w-7 h-7 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <div class="faq-answer text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Daybit is a Progressive Web App (PWA). On iPhone, open Daybit in Safari, tap the Share button, and select "Add to Home Screen". On Android, open in Chrome and tap "Install App". It opens in full-screen just like a native app.
+        </div>
+      </div>
+
+      <!-- Question 6 -->
+      <div class="faq-item rounded-2xl border border-slate-800 bg-[#0f1422] p-4 sm:p-5 transition-all duration-200 hover:border-slate-700 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-sm sm:text-base font-semibold text-white">
+            Can I rearrange or reorder my habits?
+          </span>
+          <div class="faq-icon w-7 h-7 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 transition-transform duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+        </div>
+        <div class="faq-answer text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Yes! Open the three dots menu (⋮) in the top bar, tap "Reorder Habits", and you can hold and drag any habit up or down with your finger to arrange them however fits your morning or evening routine best.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CLOSING CALL TO ACTION -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 py-16 text-center">
+    <div id="cta-card" class="p-8 sm:p-12 rounded-3xl bg-[#0f1422] border border-slate-800 shadow-xl relative overflow-hidden space-y-4">
+      
+      <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight">
+        Ready to start your streak?
+      </h2>
+      
+      <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+        It takes less than 30 seconds to set up your first habit. Free forever.
+      </p>
+
+      <div class="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button onclick="triggerAction('start')" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-sm shadow-xl shadow-orange-500/25 hover:from-amber-600 hover:to-orange-600 transition-all transform active:scale-95 cursor-pointer">
+          Open Daybit App — Start Free
+        </button>
+      </div>
+
+      <div class="pt-1.5">
+        <button onclick="triggerAction('login')" class="text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer">
+          Already tracking? Sign In to Sync →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLEAN MINIMALIST FOOTER -->
+  <footer id="page-footer" class="border-t border-slate-800/80 bg-[#070b14]/80 backdrop-blur-md transition-colors mt-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800/60">
+        
+        <!-- Left: Logo & Wordmark -->
+        <div class="flex items-center gap-3">
+          <img
+            src="/icons/flame-emblem.png"
+            alt="Daybit"
+            class="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]"
+          />
+          <div class="flex items-center font-black tracking-[-0.035em] text-xl leading-none">
+            <span class="text-white">Day</span><span class="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">bit</span>
+          </div>
+          <span class="hidden sm:inline-block text-slate-700 mx-1">|</span>
+          <span class="text-xs text-slate-400 hidden sm:inline-block">Build better habits, one day at a time.</span>
+        </div>
+
+        <!-- Right: Inline Navigation Links -->
+        <div class="flex items-center gap-6 text-xs font-medium text-slate-400">
+          <a href="#how-it-works" class="hover:text-amber-400 transition-colors">How it works</a>
+          <a href="#features" class="hover:text-amber-400 transition-colors">Features</a>
+          <a href="#faq" class="hover:text-amber-400 transition-colors">FAQ</a>
+          <button onclick="triggerAction('start')" class="text-amber-400/90 hover:text-amber-300 font-semibold transition-colors cursor-pointer">Start Free →</button>
+        </div>
+
+      </div>
+
+      <!-- Bottom Row: Copyright & Back to Top -->
+      <div class="pt-6 flex items-center justify-between text-xs text-slate-500">
+        <p>© 2026 Daybit</p>
+        <button onclick="scrollToTop()" class="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
+          <span>Back to top</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT FOR ACCORDION & INTERACTIVITY -->
+  <script>
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    function toggleFaq(element) {
+      const isActive = element.classList.contains('active');
+      if (isActive) {
+        element.classList.remove('active');
+      } else {
+        element.classList.add('active');
+      }
+    }
+
+    function toggleHabit(button, color) {
+      const isChecked = button.dataset.checked !== 'false' && (button.dataset.checked === 'true' || button.classList.contains('bg-indigo-500') || button.classList.contains('bg-emerald-500') || button.classList.contains('bg-cyan-500'));
+      const icon = button.querySelector('.check-icon');
+
+      const colorStyles = {
+        indigo: {
+          bg: 'bg-indigo-500',
+          border: 'border-indigo-500',
+          shadow: 'shadow-[0_0_0_3px_rgba(99,102,241,0.2),0_2px_10px_rgba(99,102,241,0.35)]',
+          hover: 'hover:border-indigo-400'
+        },
+        emerald: {
+          bg: 'bg-emerald-500',
+          border: 'border-emerald-500',
+          shadow: 'shadow-[0_0_0_3px_rgba(16,185,129,0.2),0_2px_10px_rgba(16,185,129,0.35)]',
+          hover: 'hover:border-emerald-400'
+        },
+        cyan: {
+          bg: 'bg-cyan-500',
+          border: 'border-cyan-500',
+          shadow: 'shadow-[0_0_0_3px_rgba(6,182,212,0.2),0_2px_10px_rgba(6,182,212,0.35)]',
+          hover: 'hover:border-cyan-400'
+        }
+      };
+
+      const c = colorStyles[color] || colorStyles.emerald;
+
+      if (isChecked) {
+        button.dataset.checked = 'false';
+        button.className = `habit-toggle-btn w-8 h-8 rounded-full border-2 border-slate-600 ${c.hover} flex items-center justify-center transition-all cursor-pointer shrink-0`;
+        icon.classList.add('hidden');
+      } else {
+        button.dataset.checked = 'true';
+        button.className = `habit-toggle-btn w-8 h-8 rounded-full ${c.bg} border-2 ${c.border} ${c.shadow} flex items-center justify-center transition-all cursor-pointer shrink-0`;
+        icon.classList.remove('hidden');
+      }
+    }
+
+    function triggerAction(action) {
+      if (action === 'start') {
+        alert('✨ Opening Daybit App: Takes you straight into your habit tracker.');
+      } else if (action === 'login') {
+        alert('🔐 Opening Sign In Modal.');
+      }
+    }
+  </script>
+</body>
+</html>

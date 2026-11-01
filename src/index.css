@@ -207,4 +207,21 @@ div[style*="2147483647"] {
   pointer-events: none !important;
 }
 
+/* Aesthetic Metallic Alloy Theme for Landing & Showcase */
+.theme-alloy {
+  background-color: #070a13;
+  background-image: 
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(45, 60, 95, 0.42) 0%, transparent 70%),
+    radial-gradient(ellipse 65% 45% at 88% 22%, rgba(180, 83, 9, 0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 12% 55%, rgba(30, 48, 80, 0.25) 0%, transparent 65%),
+    linear-gradient(180deg, #090e1a 0%, #060912 100%);
+  background-attachment: fixed;
+}
+.alloy-card {
+  background: #0f1626;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 158, 11, 0.08);
+}
+
+
 

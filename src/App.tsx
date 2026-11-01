@@ -12,6 +12,7 @@ import GreetingBanner from './components/GreetingBanner';
 import { Sparkles, FileSpreadsheet, ShieldCheck, Loader2, AlertCircle, X } from 'lucide-react';
 import HabitChart from './components/HabitChart';
 import { SetupScreen } from './components/SetupScreen';
+import { LandingPage } from './components/LandingPage';
 import { MobileBottomBar } from './components/MobileBottomBar';
 import { PWAInstallModal } from './components/PWAInstallModal';
 import { usePWAInstall } from './hooks/usePWAInstall';
@@ -29,6 +30,7 @@ import {
 const LOCAL_STORAGE_KEY = 'daybit_habits_v2';
 const OLD_LOCAL_STORAGE_KEY = 'daybit_habits_v1';
 const SETUP_STORAGE_KEY = 'daybit_setup_complete_v1';
+const LANDING_SEEN_KEY = 'daybit_landing_seen_v1';
 
 export default function App() {
   // ── Theme State ──
@@ -85,6 +87,37 @@ export default function App() {
       if (localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem(OLD_LOCAL_STORAGE_KEY)) {
         localStorage.setItem(SETUP_STORAGE_KEY, 'true');
         return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+
+  // ── Landing / Intro Page State ──
+  const [showLandingPage, setShowLandingPage] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const search = window.location.search;
+        const hash = window.location.hash;
+        if (
+          search.includes('intro=true') ||
+          search.includes('landing=true') ||
+          hash.includes('intro') ||
+          hash.includes('landing')
+        ) {
+          return true;
+        }
+        // First-time visitor who has never seen the landing page and has no saved habits
+        const hasSeenLanding = localStorage.getItem(LANDING_SEEN_KEY) === 'true';
+        const hasExistingHabits = Boolean(
+          localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem(OLD_LOCAL_STORAGE_KEY)
+        );
+        const hasCompletedSetup = localStorage.getItem(SETUP_STORAGE_KEY) === 'true';
+
+        if (!hasSeenLanding && !hasExistingHabits && !hasCompletedSetup) {
+          return true;
+        }
       }
       return false;
     } catch {
@@ -606,6 +639,41 @@ export default function App() {
     );
   }
 
+  // Show Landing Page on-demand or for first-time visitors
+  if (showLandingPage) {
+    return (
+      <>
+        <LandingPage
+          onStartApp={() => {
+            localStorage.setItem(LANDING_SEEN_KEY, 'true');
+            setShowLandingPage(false);
+            if (typeof window !== 'undefined' && window.history.replaceState) {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('intro');
+              url.searchParams.delete('landing');
+              window.history.replaceState({}, '', url.pathname);
+            }
+          }}
+          onOpenAuth={() => {
+            setIsAuthModalOpen(true);
+          }}
+          onBackToApp={
+            isSetupComplete || user
+              ? () => {
+                  setShowLandingPage(false);
+                }
+              : undefined
+          }
+        />
+        {/* Auth Modal if triggered directly from landing page */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   // Show Setup / Onboarding screen strictly for first-time users
   if (!isSetupComplete && !user) {
     return (
@@ -660,6 +728,7 @@ export default function App() {
         isStandalone={isStandalone}
         onToggleReorderMode={() => setIsReorderMode((prev) => !prev)}
         isReorderMode={isReorderMode}
+        onOpenLanding={() => setShowLandingPage(true)}
       />
 
       {/* Main Content Area */}
