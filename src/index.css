@@ -225,3 +225,75 @@ div[style*="2147483647"] {
 
 
 
+
+/* ═══════════════════════════════════════════════════
+   LANDING PAGE — DYNAMIC ANIMATION SYSTEM
+   ═══════════════════════════════════════════════════ */
+
+/* 1. Hero entrance: slides up + fades in */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 2. Mockup float: gentle infinite bob */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-9px); }
+}
+
+/* 3. Gradient shimmer sweep on brand text */
+@keyframes shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 4. Scroll-reveal base state (invisible + shifted down) */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* When IntersectionObserver fires, add .is-visible */
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 5. Hero animated elements (mount stagger driven by animation-delay) */
+.hero-anim {
+  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 6. Floating mock card wrapper */
+.mock-float {
+  animation: float 4.5s ease-in-out infinite;
+}
+
+/* 7. Shimmer gradient text helper */
+.shimmer-text {
+  background-size: 200% 200%;
+  animation: shimmer 3.5s ease infinite;
+}
+
+/* 8. Scroll progress bar */
+#scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  z-index: 9999;
+  background: linear-gradient(90deg, #f59e0b, #f97316, #fbbf24);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+  transition: width 0.08s linear;
+  pointer-events: none;
+}

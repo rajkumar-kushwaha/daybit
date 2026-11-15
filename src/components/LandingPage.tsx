@@ -16,7 +16,6 @@ import {
 // ─── 3D Tilt Hook ───────────────────────────────────────────────────────────
 function useTilt(maxDeg = 14) {
   const ref = useRef<HTMLDivElement>(null);
-
   const onMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const el = ref.current;
@@ -32,30 +31,23 @@ function useTilt(maxDeg = 14) {
     },
     [maxDeg],
   );
-
   const onMouseLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
     el.style.transform =
       'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
   }, []);
-
   return { ref, onMouseMove, onMouseLeave };
 }
 
-// ─── Shared card wrapper ─────────────────────────────────────────────────────
+// ─── TiltCard wrapper ────────────────────────────────────────────────────────
 interface TiltCardProps {
   children: React.ReactNode;
   className?: string;
   maxDeg?: number;
   style?: React.CSSProperties;
 }
-const TiltCard: React.FC<TiltCardProps> = ({
-  children,
-  className = '',
-  maxDeg = 14,
-  style,
-}) => {
+const TiltCard: React.FC<TiltCardProps> = ({ children, className = '', maxDeg = 14, style }) => {
   const { ref, onMouseMove, onMouseLeave } = useTilt(maxDeg);
   return (
     <div
@@ -73,6 +65,27 @@ const TiltCard: React.FC<TiltCardProps> = ({
     </div>
   );
 };
+
+// ─── Scroll-reveal hook (IntersectionObserver) ───────────────────────────────
+function useReveal(threshold = 0.12) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible');
+          obs.disconnect();
+        }
+      },
+      { threshold },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return ref;
+}
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 interface LandingPageProps {
@@ -94,14 +107,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   });
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
-  // Scroll position tracking for buttery smooth parallax (60/120fps)
+  // ── Scroll state: parallax + progress bar ──
   const [scrollY, setScrollY] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     let rafId: number;
     const onScroll = () => {
       rafId = requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
+        const sy = window.scrollY;
+        setScrollY(sy);
+        const docH = document.documentElement.scrollHeight - window.innerHeight;
+        setScrollProgress(docH > 0 ? Math.min((sy / docH) * 100, 100) : 0);
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -135,6 +152,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Reveal refs for each section
+  const revealHowItWorks = useReveal(0.1);
+  const revealFeatures = useReveal(0.08);
+  const revealFaq = useReveal(0.1);
+  const revealCta = useReveal(0.1);
 
   const faqItems = [
     {
@@ -170,18 +193,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         background: 'radial-gradient(circle at 50% 0%, #0d1226 0%, #070914 45%, #05060d 100%)',
       }}
     >
-      {/* ── PARALLAX SAAS DYNAMIC BACKGROUND ── */}
+      {/* ── Scroll Progress Bar ── */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-      >
-        {/* Layer 1: Geometric SaaS Grid with Subtle Parallax & Radial Vignette */}
+        id="scroll-progress-bar"
+        style={{ width: `${scrollProgress}%` }}
+      />
+
+      {/* ── PARALLAX DYNAMIC BACKGROUND ── */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        {/* Grid mesh with parallax drift */}
         <div
-          className="absolute inset-0 z-0 opacity-40 transition-transform duration-75 ease-out"
+          className="absolute inset-0 opacity-40"
           style={{
             backgroundImage: `
-              linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px)
+              linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)
             `,
             backgroundSize: '48px 48px',
             maskImage: 'radial-gradient(ellipse 90% 80% at 50% 25%, black 20%, transparent 80%)',
@@ -190,93 +216,66 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             willChange: 'transform',
           }}
         />
-
-        {/* Layer 2: Hero Top Radiant Light Beam (Sunburst Aura) */}
+        {/* Top radiant beam */}
         <div
-          className="absolute top-0 left-1/2 z-0 w-[1100px] h-[550px] pointer-events-none"
+          className="absolute top-0 left-1/2 w-[1100px] h-[550px]"
           style={{
             transform: `translate(-50%, ${scrollY * -0.15}px)`,
-            background:
-              'radial-gradient(ellipse 65% 50% at 50% 0%, rgba(245,158,11,0.18) 0%, rgba(249,115,22,0.08) 35%, transparent 70%)',
+            background: 'radial-gradient(ellipse 65% 50% at 50% 0%, rgba(245,158,11,0.18) 0%, rgba(249,115,22,0.08) 35%, transparent 70%)',
             filter: 'blur(40px)',
             willChange: 'transform',
           }}
         />
-
-        {/* Layer 3: Hero Orb Left — Warm Golden Amber */}
+        {/* Hero orb left — Amber */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            top: '-50px',
-            left: '-8vw',
-            width: '54vw',
-            height: '54vw',
-            background:
-              'radial-gradient(circle, rgba(245,158,11,0.14) 0%, rgba(249,115,22,0.05) 45%, transparent 70%)',
+            top: '-50px', left: '-8vw', width: '54vw', height: '54vw',
+            background: 'radial-gradient(circle, rgba(245,158,11,0.14) 0%, rgba(249,115,22,0.05) 45%, transparent 70%)',
             filter: 'blur(35px)',
             transform: `translateY(${scrollY * 0.22}px)`,
             willChange: 'transform',
           }}
         />
-
-        {/* Layer 4: Hero Orb Right — Electric Indigo Nebula */}
+        {/* Hero orb right — Indigo */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            top: '80px',
-            right: '-10vw',
-            width: '46vw',
-            height: '46vw',
-            background:
-              'radial-gradient(circle, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.05) 50%, transparent 70%)',
+            top: '80px', right: '-10vw', width: '46vw', height: '46vw',
+            background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.05) 50%, transparent 70%)',
             filter: 'blur(40px)',
             transform: `translateY(${scrollY * 0.16}px)`,
             willChange: 'transform',
           }}
         />
-
-        {/* Layer 5: How It Works Section — Deep Royal Violet Aurora */}
+        {/* How It Works — Violet aurora */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            top: '950px',
-            left: '10vw',
-            width: '48vw',
-            height: '48vw',
-            background:
-              'radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(79,70,229,0.04) 50%, transparent 70%)',
+            top: '950px', left: '10vw', width: '48vw', height: '48vw',
+            background: 'radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(79,70,229,0.04) 50%, transparent 70%)',
             filter: 'blur(50px)',
             transform: `translateY(${(scrollY - 600) * 0.18}px)`,
             willChange: 'transform',
           }}
         />
-
-        {/* Layer 6: Features Section — Vibrant Emerald & Cyan Flare */}
+        {/* Features — Emerald/Cyan */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            top: '1650px',
-            right: '-8vw',
-            width: '50vw',
-            height: '50vw',
-            background:
-              'radial-gradient(circle, rgba(16,185,129,0.10) 0%, rgba(6,182,212,0.06) 45%, transparent 70%)',
+            top: '1650px', right: '-8vw', width: '50vw', height: '50vw',
+            background: 'radial-gradient(circle, rgba(16,185,129,0.10) 0%, rgba(6,182,212,0.06) 45%, transparent 70%)',
             filter: 'blur(50px)',
             transform: `translateY(${(scrollY - 1300) * 0.2}px)`,
             willChange: 'transform',
           }}
         />
-
-        {/* Layer 7: FAQ & Closing CTA Section — Sunset Amber & Coral Core */}
+        {/* FAQ/CTA — Sunset Amber */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            top: '2400px',
-            left: '5vw',
-            width: '55vw',
-            height: '55vw',
-            background:
-              'radial-gradient(circle, rgba(245,158,11,0.12) 0%, rgba(239,68,68,0.06) 45%, transparent 70%)',
+            top: '2400px', left: '5vw', width: '55vw', height: '55vw',
+            background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, rgba(239,68,68,0.06) 45%, transparent 70%)',
             filter: 'blur(55px)',
             transform: `translateY(${(scrollY - 2000) * 0.15}px)`,
             willChange: 'transform',
@@ -285,7 +284,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </div>
 
       {/* ════════════════════════════════════
-          STICKY NAVIGATION
+          STICKY NAV
       ════════════════════════════════════ */}
       <header
         id="landing-sticky-header"
@@ -293,10 +292,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         style={{ background: 'rgba(7,9,26,0.82)' }}
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between">
-          <div
-            onClick={scrollToTop}
-            className="flex items-center gap-3 select-none shrink-0 cursor-pointer group"
-          >
+          <div onClick={scrollToTop} className="flex items-center gap-3 select-none shrink-0 cursor-pointer group">
             <img
               src="/icons/flame-emblem.png"
               alt="Daybit"
@@ -305,8 +301,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex items-center font-black tracking-[-0.035em] text-[1.5rem] sm:text-[1.75rem] leading-none select-none">
               <span className="text-white">Day</span>
               <span
+                className="shimmer-text"
                 style={{
-                  background: 'linear-gradient(90deg, #fbbf24, #f97316, #fde68a)',
+                  background: 'linear-gradient(90deg, #fbbf24, #f97316, #fde68a, #f97316, #fbbf24)',
+                  backgroundSize: '200% 200%',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -316,56 +314,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Center Nav */}
           <div className="hidden md:flex items-center gap-8 lg:gap-9 text-[17px] font-medium text-slate-300">
-            <a
-              href="#how-it-works"
-              className="relative group hover:text-white transition-colors duration-200"
-            >
+            <a href="#how-it-works" className="relative group hover:text-white transition-colors duration-200">
               How it works
               <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gradient-to-r from-amber-400 to-orange-400 group-hover:w-full transition-all duration-300" />
             </a>
-            <a
-              href="#features"
-              className="relative group hover:text-white transition-colors duration-200"
-            >
+            <a href="#features" className="relative group hover:text-white transition-colors duration-200">
               Features
               <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gradient-to-r from-amber-400 to-orange-400 group-hover:w-full transition-all duration-300" />
             </a>
-            <a
-              href="#faq"
-              className="relative group hover:text-white transition-colors duration-200"
-            >
+            <a href="#faq" className="relative group hover:text-white transition-colors duration-200">
               FAQ
               <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gradient-to-r from-amber-400 to-orange-400 group-hover:w-full transition-all duration-300" />
             </a>
           </div>
 
-          {/* Top Right Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             {onBackToApp && (
-              <button
-                onClick={onBackToApp}
-                className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer"
-              >
+              <button onClick={onBackToApp} className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
                 Back to Tracker
               </button>
             )}
             {onOpenAuth && (
-              <button
-                onClick={onOpenAuth}
-                className="text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer"
-              >
+              <button onClick={onOpenAuth} className="text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
                 Sign In
               </button>
             )}
             <button
               onClick={onStartApp}
               className="relative text-xs sm:text-sm font-bold text-white px-3.5 sm:px-5 py-2 rounded-xl transition-all transform active:scale-95 flex items-center gap-1.5 cursor-pointer overflow-hidden group"
-              style={{
-                background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
-                boxShadow: '0 4px 20px rgba(249,115,22,0.35)',
-              }}
+              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)', boxShadow: '0 4px 20px rgba(249,115,22,0.35)' }}
             >
               <span className="relative z-10">Start Free</span>
               <ArrowRight className="w-3.5 h-3.5 relative z-10" />
@@ -376,24 +354,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </header>
 
       {/* ════════════════════════════════════
-          HERO SECTION
+          HERO — Staggered entrance animations
       ════════════════════════════════════ */}
       <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-20 text-center">
-        {/* Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-7 text-xs font-bold tracking-wider text-amber-300 border border-amber-500/25"
-          style={{ background: 'rgba(245,158,11,0.08)' }}
+        {/* Badge — delay 0ms */}
+        <div
+          className="hero-anim inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-7 text-xs font-bold tracking-wider text-amber-300 border border-amber-500/25"
+          style={{ background: 'rgba(245,158,11,0.08)', animationDelay: '0ms' }}
         >
           <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping" />
           <span>A CALM PLACE FOR YOUR DAILY HABITS</span>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-[3.75rem] font-black tracking-tight leading-[1.1] max-w-3xl mx-auto mb-5">
+        {/* Headline — delay 100ms */}
+        <h1
+          className="hero-anim text-4xl sm:text-5xl md:text-[3.75rem] font-black tracking-tight leading-[1.1] max-w-3xl mx-auto mb-5"
+          style={{ animationDelay: '100ms' }}
+        >
           <span className="text-white">Build better habits.</span>
           <br />
           <span
+            className="shimmer-text"
             style={{
-              background: 'linear-gradient(100deg, #fbbf24 10%, #f97316 50%, #fde68a 90%)',
+              background: 'linear-gradient(100deg, #fbbf24 0%, #f97316 30%, #fde68a 60%, #f97316 80%, #fbbf24 100%)',
+              backgroundSize: '200% 200%',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
@@ -402,20 +386,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+        {/* Subtitle — delay 200ms */}
+        <p
+          className="hero-anim text-slate-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed"
+          style={{ animationDelay: '200ms' }}
+        >
           No confusing points, coins, or clutter. Just a clean view of your month, your streaks, and your daily progress.
         </p>
 
-        {/* Hero CTA row */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+        {/* CTA row — delay 300ms */}
+        <div
+          className="hero-anim flex flex-col sm:flex-row items-center justify-center gap-3 mb-14"
+          style={{ animationDelay: '300ms' }}
+        >
           <button
             onClick={onStartApp}
             className="relative group w-full sm:w-auto px-7 py-3.5 rounded-2xl font-extrabold text-sm text-white overflow-hidden cursor-pointer active:scale-95 transition-transform"
-            style={{
-              background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ef4444 100%)',
-              boxShadow: '0 6px 28px rgba(249,115,22,0.42)',
-            }}
+            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ef4444 100%)', boxShadow: '0 6px 28px rgba(249,115,22,0.42)' }}
           >
             <span className="relative z-10 flex items-center gap-2">
               Open Daybit — Free Forever
@@ -434,30 +421,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           )}
         </div>
 
-        {/* ── INTERACTIVE MOCKUP ── */}
-        <div className="max-w-2xl mx-auto text-left relative mt-2">
-          {/* Floating top-right card */}
+        {/* INTERACTIVE MOCKUP — delay 450ms + floating bob */}
+        <div
+          className="hero-anim max-w-2xl mx-auto text-left relative mt-2"
+          style={{ animationDelay: '450ms' }}
+        >
+          {/* Floating badge top-right */}
           <div
             className="absolute -top-5 -right-2 sm:-right-4 z-20 rounded-2xl px-4 py-2.5 shadow-2xl flex items-center gap-3 hover:scale-105 transition-transform duration-200 border border-white/[0.08]"
             style={{ background: 'rgba(15,22,38,0.95)', backdropFilter: 'blur(12px)' }}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                CONSISTENCY SCORE
-              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CONSISTENCY SCORE</span>
               <span className="text-sm sm:text-base font-black text-white flex items-center gap-1.5">
                 <span className="text-amber-400">🔥 100%</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                  +14 Days
-                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">+14 Days</span>
               </span>
             </div>
           </div>
 
-          {/* Main browser-frame card */}
+          {/* Main frame — floating bob animation */}
           <div
-            className="rounded-2xl overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.06)] relative z-10"
+            className="mock-float rounded-2xl overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.06)] relative z-10"
             style={{ background: 'rgba(10,14,28,0.98)' }}
           >
             {/* Top bar */}
@@ -471,9 +457,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span className="text-slate-200 font-semibold text-xs tracking-wide">Daybit</span>
               </div>
-              <div className="text-[11px] font-medium text-slate-500 hidden sm:block">
-                Today • Live Preview
-              </div>
+              <div className="text-[11px] font-medium text-slate-500 hidden sm:block">Today • Live Preview</div>
             </div>
 
             {/* Habit rows */}
@@ -548,9 +532,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
 
               <div className="pt-1.5 text-center">
-                <span className="text-xs font-medium text-slate-500">
-                  👆 Tap circles to test checking off a habit
-                </span>
+                <span className="text-xs font-medium text-slate-500">👆 Tap circles to test checking off a habit</span>
               </div>
             </div>
           </div>
@@ -560,38 +542,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             className="absolute -bottom-4 -right-1 sm:-right-4 z-20 rounded-full px-3.5 py-1.5 shadow-xl flex items-center gap-2 hover:scale-105 transition-transform duration-200 border border-white/[0.07]"
             style={{ background: 'rgba(15,22,38,0.95)', backdropFilter: 'blur(12px)' }}
           >
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-              100%
-            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">100%</span>
             <span className="text-slate-300 font-medium text-xs">Private & Offline Ready</span>
           </div>
         </div>
       </main>
 
       {/* ════════════════════════════════════
-          HOW IT WORKS
+          HOW IT WORKS — Scroll reveal + staggered cards
       ════════════════════════════════════ */}
       <section
         id="how-it-works"
         className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-20 text-center"
         style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
-        <span className="text-xs font-bold tracking-wider uppercase mb-2 block"
-          style={{
-            background: 'linear-gradient(90deg,#fbbf24,#f97316)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Simple Routine
-        </span>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3">
-          How it works in 3 simple steps
-        </h2>
-        <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto mb-12">
-          No steep learning curve. Start building momentum in under a minute.
-        </p>
+        {/* Section heading reveal */}
+        <div ref={revealHowItWorks} className="reveal">
+          <span
+            className="text-xs font-bold tracking-wider uppercase mb-2 block"
+            style={{ background: 'linear-gradient(90deg,#fbbf24,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+          >
+            Simple Routine
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3">
+            How it works in 3 simple steps
+          </h2>
+          <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto mb-12">
+            No steep learning curve. Start building momentum in under a minute.
+          </p>
+        </div>
 
+        {/* Staggered step cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
           {[
             {
@@ -618,50 +599,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               glow: 'rgba(16,185,129,0.18)',
               numGrad: 'linear-gradient(135deg,#34d399,#10b981)',
             },
-          ].map((step) => (
-            <TiltCard
-              key={step.num}
-              maxDeg={12}
-              className="p-6 sm:p-7 rounded-2xl space-y-3 border border-white/[0.07] cursor-default"
-              style={{
-                background: `radial-gradient(ellipse at 30% 20%, ${step.color} 0%, rgba(10,14,28,0.95) 70%)`,
-                boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
-              } as React.CSSProperties}
-            >
-              <span
-                className="text-2xl font-black"
+          ].map((step, i) => (
+            <StepCardReveal key={step.num} delay={i * 130}>
+              <TiltCard
+                maxDeg={12}
+                className="p-6 sm:p-7 rounded-2xl space-y-3 border border-white/[0.07] cursor-default h-full"
                 style={{
-                  background: step.numGrad,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  filter: `drop-shadow(0 0 10px ${step.glow})`,
-                }}
+                  background: `radial-gradient(ellipse at 30% 20%, ${step.color} 0%, rgba(10,14,28,0.95) 70%)`,
+                  boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
+                } as React.CSSProperties}
               >
-                {step.num}
-              </span>
-              <h3 className="text-sm sm:text-base font-bold text-white">{step.title}</h3>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{step.desc}</p>
-            </TiltCard>
+                <span
+                  className="text-2xl font-black"
+                  style={{
+                    background: step.numGrad,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    filter: `drop-shadow(0 0 10px ${step.glow})`,
+                  }}
+                >
+                  {step.num}
+                </span>
+                <h3 className="text-sm sm:text-base font-bold text-white">{step.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{step.desc}</p>
+              </TiltCard>
+            </StepCardReveal>
           ))}
         </div>
       </section>
 
       {/* ════════════════════════════════════
-          FEATURES
+          FEATURES — Scroll reveal + stagger
       ════════════════════════════════════ */}
       <section
         id="features"
         className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20"
         style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
-        <div className="text-center max-w-xl mx-auto mb-14">
+        {/* Heading */}
+        <div ref={revealFeatures} className="reveal text-center max-w-xl mx-auto mb-14">
           <span
             className="text-xs font-bold tracking-wider uppercase mb-2 block"
-            style={{
-              background: 'linear-gradient(90deg,#fbbf24,#f97316)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+            style={{ background: 'linear-gradient(90deg,#fbbf24,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
           >
             Simple by Design
           </span>
@@ -673,112 +652,83 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </p>
         </div>
 
+        {/* Feature cards — 2×2 staggered */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {[
             {
-              Icon: Calendar,
-              tag: 'MONTHLY GRID',
-              tagColor: '#fbbf24',
-              iconBg: 'rgba(245,158,11,0.1)',
-              iconBorder: 'rgba(245,158,11,0.2)',
-              iconColor: '#fbbf24',
+              Icon: Calendar, tag: 'MONTHLY GRID', tagColor: '#fbbf24',
+              iconBg: 'rgba(245,158,11,0.1)', iconBorder: 'rgba(245,158,11,0.2)', iconColor: '#fbbf24',
               glowColor: 'rgba(245,158,11,0.09)',
               title: 'See your month at a glance',
               desc: 'See your entire month laid out in a clean calendar grid. Watching checkmarks connect gives you natural momentum to keep going.',
             },
             {
-              Icon: Lock,
-              tag: 'STAY HONEST',
-              tagColor: '#fb923c',
-              iconBg: 'rgba(249,115,22,0.1)',
-              iconBorder: 'rgba(249,115,22,0.2)',
-              iconColor: '#fb923c',
+              Icon: Lock, tag: 'STAY HONEST', tagColor: '#fb923c',
+              iconBg: 'rgba(249,115,22,0.1)', iconBorder: 'rgba(249,115,22,0.2)', iconColor: '#fb923c',
               glowColor: 'rgba(249,115,22,0.09)',
               title: 'Focus on today, not yesterday',
               desc: 'Lock past dates with a tap so streaks stay 100% honest. When you build a streak in Daybit, you know you truly earned it.',
             },
             {
-              Icon: Flame,
-              tag: 'DAILY STREAKS',
-              tagColor: '#fbbf24',
-              iconBg: 'rgba(245,158,11,0.1)',
-              iconBorder: 'rgba(245,158,11,0.2)',
-              iconColor: '#fbbf24',
+              Icon: Flame, tag: 'DAILY STREAKS', tagColor: '#fbbf24',
+              iconBg: 'rgba(245,158,11,0.1)', iconBorder: 'rgba(245,158,11,0.2)', iconColor: '#fbbf24',
               glowColor: 'rgba(245,158,11,0.09)',
               title: 'Celebrate every single win',
               desc: 'Feel a satisfying tap and celebratory confetti with every checkmark. Reorder habits smoothly to match your daily routine.',
             },
             {
-              Icon: Smartphone,
-              tag: 'ALWAYS READY',
-              tagColor: '#34d399',
-              iconBg: 'rgba(16,185,129,0.1)',
-              iconBorder: 'rgba(16,185,129,0.2)',
-              iconColor: '#34d399',
+              Icon: Smartphone, tag: 'ALWAYS READY', tagColor: '#34d399',
+              iconBg: 'rgba(16,185,129,0.1)', iconBorder: 'rgba(16,185,129,0.2)', iconColor: '#34d399',
               glowColor: 'rgba(16,185,129,0.09)',
               title: 'Works anywhere, even offline',
               desc: 'Installs to your home screen like a native app on iPhone and Android. 100% private and offline-ready, with optional cloud sync.',
             },
-          ].map((feat) => (
-            <TiltCard
-              key={feat.tag}
-              maxDeg={10}
-              className="p-6 rounded-2xl border border-white/[0.07] cursor-default group"
-              style={{
-                background: `radial-gradient(ellipse at 20% 20%, ${feat.glowColor} 0%, rgba(10,14,28,0.96) 65%)`,
-                boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
-              } as React.CSSProperties}
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+          ].map((feat, i) => (
+            <StepCardReveal key={feat.tag} delay={i * 100}>
+              <TiltCard
+                maxDeg={10}
+                className="p-6 rounded-2xl border border-white/[0.07] cursor-default group h-full"
                 style={{
-                  background: feat.iconBg,
-                  border: `1px solid ${feat.iconBorder}`,
-                  boxShadow: `0 0 20px ${feat.glowColor}`,
-                }}
+                  background: `radial-gradient(ellipse at 20% 20%, ${feat.glowColor} 0%, rgba(10,14,28,0.96) 65%)`,
+                  boxShadow: '0 4px 30px rgba(0,0,0,0.5)',
+                } as React.CSSProperties}
               >
-                <feat.Icon className="w-5 h-5" style={{ color: feat.iconColor }} />
-              </div>
-              <span
-                className="text-[11px] font-bold tracking-wider uppercase"
-                style={{ color: feat.tagColor }}
-              >
-                {feat.tag}
-              </span>
-              <h3 className="text-base sm:text-lg font-bold text-white mt-1 mb-2">
-                {feat.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{feat.desc}</p>
-            </TiltCard>
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+                  style={{ background: feat.iconBg, border: `1px solid ${feat.iconBorder}`, boxShadow: `0 0 20px ${feat.glowColor}` }}
+                >
+                  <feat.Icon className="w-5 h-5" style={{ color: feat.iconColor }} />
+                </div>
+                <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: feat.tagColor }}>
+                  {feat.tag}
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-white mt-1 mb-2">{feat.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{feat.desc}</p>
+              </TiltCard>
+            </StepCardReveal>
           ))}
         </div>
       </section>
 
       {/* ════════════════════════════════════
-          FAQ
+          FAQ — Scroll reveal
       ════════════════════════════════════ */}
       <section
         id="faq"
         className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 py-20"
         style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
-        <div className="text-center mb-12">
+        <div ref={revealFaq} className="reveal text-center mb-12">
           <span
             className="text-xs font-bold tracking-wider uppercase mb-2 block"
-            style={{
-              background: 'linear-gradient(90deg,#34d399,#06b6d4)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+            style={{ background: 'linear-gradient(90deg,#34d399,#06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
           >
             FAQ
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
             The frequent questions
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-2">
-            Everything you need to know about Daybit.
-          </p>
+          <p className="text-xs sm:text-sm text-slate-400 mt-2">Everything you need to know about Daybit.</p>
         </div>
 
         <div className="space-y-3">
@@ -796,10 +746,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 }}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span
-                    className="text-sm sm:text-base font-semibold"
-                    style={{ color: isOpen ? '#fff' : 'rgba(248,250,252,0.9)' }}
-                  >
+                  <span className="text-sm sm:text-base font-semibold" style={{ color: isOpen ? '#fff' : 'rgba(248,250,252,0.9)' }}>
                     {item.q}
                   </span>
                   <div
@@ -828,53 +775,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* ════════════════════════════════════
-          CLOSING CTA
+          CLOSING CTA — Scroll reveal
       ════════════════════════════════════ */}
       <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-16 text-center">
-        <div
-          className="p-10 sm:p-14 rounded-3xl relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(249,115,22,0.08) 50%, rgba(10,14,28,0.95) 100%)',
-            border: '1px solid rgba(245,158,11,0.18)',
-            boxShadow: '0 0 80px rgba(245,158,11,0.08), 0 30px 80px rgba(0,0,0,0.6)',
-          }}
-        >
-          {/* BG decoration */}
+        <div ref={revealCta} className="reveal">
           <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
+            className="p-10 sm:p-14 rounded-3xl relative overflow-hidden"
             style={{
-              background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(245,158,11,0.1) 0%, transparent 70%)',
+              background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(249,115,22,0.08) 50%, rgba(10,14,28,0.95) 100%)',
+              border: '1px solid rgba(245,158,11,0.18)',
+              boxShadow: '0 0 80px rgba(245,158,11,0.08), 0 30px 80px rgba(0,0,0,0.6)',
             }}
-          />
-
-          <h2 className="relative text-2xl sm:text-4xl font-black text-white tracking-tight mb-3">
-            Ready to start your streak?
-          </h2>
-          <p className="relative text-xs sm:text-sm text-slate-400 max-w-md mx-auto mb-8">
-            It takes less than 30 seconds to set up your first habit. Free forever.
-          </p>
-
-          <div className="relative flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={onStartApp}
-              className="relative group w-full sm:w-auto px-8 py-4 rounded-2xl font-extrabold text-sm text-white overflow-hidden cursor-pointer active:scale-95 transition-transform"
-              style={{
-                background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ef4444 100%)',
-                boxShadow: '0 8px 32px rgba(249,115,22,0.45)',
-              }}
-            >
-              <span className="relative z-10">Open Daybit App — Start Free</span>
-              <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" style={{ background: 'linear-gradient(135deg, #d97706 0%, #ea580c 60%, #dc2626 100%)' }} />
-            </button>
-            {onOpenAuth && (
+          >
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(245,158,11,0.1) 0%, transparent 70%)' }}
+            />
+            <h2 className="relative text-2xl sm:text-4xl font-black text-white tracking-tight mb-3">
+              Ready to start your streak?
+            </h2>
+            <p className="relative text-xs sm:text-sm text-slate-400 max-w-md mx-auto mb-8">
+              It takes less than 30 seconds to set up your first habit. Free forever.
+            </p>
+            <div className="relative flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
-                onClick={onOpenAuth}
-                className="text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+                onClick={onStartApp}
+                className="relative group w-full sm:w-auto px-8 py-4 rounded-2xl font-extrabold text-sm text-white overflow-hidden cursor-pointer active:scale-95 transition-transform"
+                style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ef4444 100%)', boxShadow: '0 8px 32px rgba(249,115,22,0.45)' }}
               >
-                Already tracking? Sign In to Sync →
+                <span className="relative z-10">Open Daybit App — Start Free</span>
+                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" style={{ background: 'linear-gradient(135deg, #d97706 0%, #ea580c 60%, #dc2626 100%)' }} />
               </button>
-            )}
+              {onOpenAuth && (
+                <button onClick={onOpenAuth} className="text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer">
+                  Already tracking? Sign In to Sync →
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -888,56 +826,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5,7,20,0.85)' }}
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-          <div
-            className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-          >
-            {/* Logo */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center gap-3">
-              <img
-                src="/icons/flame-emblem.png"
-                alt="Daybit"
-                className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]"
-              />
+              <img src="/icons/flame-emblem.png" alt="Daybit" className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]" />
               <div className="flex items-center font-black tracking-[-0.035em] text-xl leading-none">
                 <span className="text-white">Day</span>
-                <span style={{ background: 'linear-gradient(90deg,#fbbf24,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  bit
-                </span>
+                <span style={{ background: 'linear-gradient(90deg,#fbbf24,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>bit</span>
               </div>
               <span className="hidden sm:inline-block text-slate-700 mx-1">|</span>
-              <span className="text-xs text-slate-500 hidden sm:inline-block">
-                Build better habits, one day at a time.
-              </span>
+              <span className="text-xs text-slate-500 hidden sm:inline-block">Build better habits, one day at a time.</span>
             </div>
-
-            {/* Nav links */}
             <div className="flex items-center gap-6 text-xs font-medium text-slate-500">
-              <a href="#how-it-works" className="hover:text-amber-400 transition-colors">
-                How it works
-              </a>
-              <a href="#features" className="hover:text-amber-400 transition-colors">
-                Features
-              </a>
-              <a href="#faq" className="hover:text-amber-400 transition-colors">
-                FAQ
-              </a>
-              <button
-                onClick={onStartApp}
-                className="text-amber-400/90 hover:text-amber-300 font-semibold transition-colors cursor-pointer"
-              >
-                Start Free →
-              </button>
+              <a href="#how-it-works" className="hover:text-amber-400 transition-colors">How it works</a>
+              <a href="#features" className="hover:text-amber-400 transition-colors">Features</a>
+              <a href="#faq" className="hover:text-amber-400 transition-colors">FAQ</a>
+              <button onClick={onStartApp} className="text-amber-400/90 hover:text-amber-300 font-semibold transition-colors cursor-pointer">Start Free →</button>
             </div>
           </div>
-
-          {/* Bottom row */}
           <div className="pt-6 flex items-center justify-between text-xs text-slate-600">
             <p>© 2026 Daybit</p>
-            <button
-              onClick={scrollToTop}
-              className="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
-            >
+            <button onClick={scrollToTop} className="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
               <span>Back to top</span>
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
@@ -947,3 +855,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     </div>
   );
 };
+
+// ─── Staggered scroll-reveal wrapper for individual cards ────────────────────
+function StepCardReveal({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(32px)';
+    el.style.transition = `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms`;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [delay]);
+  return <div ref={ref}>{children}</div>;
+}
