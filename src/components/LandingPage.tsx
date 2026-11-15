@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import {
   Calendar,
@@ -94,6 +94,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   });
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
+  // Scroll position tracking for buttery smooth parallax (60/120fps)
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    let rafId: number;
+    const onScroll = () => {
+      rafId = requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   const toggleFaq = (index: number) => {
     setOpenFaqIndex((prev) => (prev === index ? null : index));
   };
@@ -148,51 +166,120 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   return (
     <div
       className="text-slate-100 antialiased min-h-screen font-sans selection:bg-amber-500 selection:text-white relative overflow-x-hidden"
-      style={{ background: 'linear-gradient(160deg, #07091a 0%, #060912 55%, #0a0810 100%)' }}
+      style={{
+        background: 'radial-gradient(circle at 50% 0%, #0d1226 0%, #070914 45%, #05060d 100%)',
+      }}
     >
-      {/* ── Ambient Gradient Orbs ── */}
+      {/* ── PARALLAX SAAS DYNAMIC BACKGROUND ── */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
       >
-        {/* Amber top-left orb */}
+        {/* Layer 1: Geometric SaaS Grid with Subtle Parallax & Radial Vignette */}
         <div
+          className="absolute inset-0 z-0 opacity-40 transition-transform duration-75 ease-out"
           style={{
-            position: 'absolute',
-            top: '-12%',
-            left: '-8%',
-            width: '52vw',
-            height: '52vw',
-            borderRadius: '50%',
-            background:
-              'radial-gradient(circle, rgba(245,158,11,0.13) 0%, transparent 70%)',
-            filter: 'blur(2px)',
+            backgroundImage: `
+              linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: '48px 48px',
+            maskImage: 'radial-gradient(ellipse 90% 80% at 50% 25%, black 20%, transparent 80%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 90% 80% at 50% 25%, black 20%, transparent 80%)',
+            transform: `translateY(${scrollY * 0.1}px)`,
+            willChange: 'transform',
           }}
         />
-        {/* Indigo right orb */}
+
+        {/* Layer 2: Hero Top Radiant Light Beam (Sunburst Aura) */}
         <div
+          className="absolute top-0 left-1/2 z-0 w-[1100px] h-[550px] pointer-events-none"
           style={{
-            position: 'absolute',
-            top: '20%',
-            right: '-10%',
-            width: '44vw',
-            height: '44vw',
-            borderRadius: '50%',
+            transform: `translate(-50%, ${scrollY * -0.15}px)`,
             background:
-              'radial-gradient(circle, rgba(99,102,241,0.09) 0%, transparent 70%)',
+              'radial-gradient(ellipse 65% 50% at 50% 0%, rgba(245,158,11,0.18) 0%, rgba(249,115,22,0.08) 35%, transparent 70%)',
+            filter: 'blur(40px)',
+            willChange: 'transform',
           }}
         />
-        {/* Emerald bottom-left orb */}
+
+        {/* Layer 3: Hero Orb Left — Warm Golden Amber */}
         <div
+          className="absolute rounded-full pointer-events-none"
           style={{
-            position: 'absolute',
-            bottom: '10%',
-            left: '-5%',
-            width: '36vw',
-            height: '36vw',
-            borderRadius: '50%',
+            top: '-50px',
+            left: '-8vw',
+            width: '54vw',
+            height: '54vw',
             background:
-              'radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%)',
+              'radial-gradient(circle, rgba(245,158,11,0.14) 0%, rgba(249,115,22,0.05) 45%, transparent 70%)',
+            filter: 'blur(35px)',
+            transform: `translateY(${scrollY * 0.22}px)`,
+            willChange: 'transform',
+          }}
+        />
+
+        {/* Layer 4: Hero Orb Right — Electric Indigo Nebula */}
+        <div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            top: '80px',
+            right: '-10vw',
+            width: '46vw',
+            height: '46vw',
+            background:
+              'radial-gradient(circle, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.05) 50%, transparent 70%)',
+            filter: 'blur(40px)',
+            transform: `translateY(${scrollY * 0.16}px)`,
+            willChange: 'transform',
+          }}
+        />
+
+        {/* Layer 5: How It Works Section — Deep Royal Violet Aurora */}
+        <div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            top: '950px',
+            left: '10vw',
+            width: '48vw',
+            height: '48vw',
+            background:
+              'radial-gradient(circle, rgba(124,58,237,0.09) 0%, rgba(79,70,229,0.04) 50%, transparent 70%)',
+            filter: 'blur(50px)',
+            transform: `translateY(${(scrollY - 600) * 0.18}px)`,
+            willChange: 'transform',
+          }}
+        />
+
+        {/* Layer 6: Features Section — Vibrant Emerald & Cyan Flare */}
+        <div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            top: '1650px',
+            right: '-8vw',
+            width: '50vw',
+            height: '50vw',
+            background:
+              'radial-gradient(circle, rgba(16,185,129,0.10) 0%, rgba(6,182,212,0.06) 45%, transparent 70%)',
+            filter: 'blur(50px)',
+            transform: `translateY(${(scrollY - 1300) * 0.2}px)`,
+            willChange: 'transform',
+          }}
+        />
+
+        {/* Layer 7: FAQ & Closing CTA Section — Sunset Amber & Coral Core */}
+        <div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            top: '2400px',
+            left: '5vw',
+            width: '55vw',
+            height: '55vw',
+            background:
+              'radial-gradient(circle, rgba(245,158,11,0.12) 0%, rgba(239,68,68,0.06) 45%, transparent 70%)',
+            filter: 'blur(55px)',
+            transform: `translateY(${(scrollY - 2000) * 0.15}px)`,
+            willChange: 'transform',
           }}
         />
       </div>
