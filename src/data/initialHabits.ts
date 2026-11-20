@@ -38,42 +38,6 @@ export const STARTER_HABIT_OPTIONS: StarterHabitOption[] = [
     targetPerMonth: 25,
     description: 'Read non-fiction, career growth books, or articles without distractions',
   },
-  {
-    id: 'h4',
-    name: 'Deep Work (2hr Focus)',
-    category: 'Productivity',
-    emoji: 'zap',
-    color: '#f59e0b', // Amber
-    targetPerMonth: 20,
-    description: 'Dedicated focus block on high-value tasks with notifications silenced',
-  },
-  {
-    id: 'h5',
-    name: 'Healthy Clean Meals',
-    category: 'Health',
-    emoji: 'utensils',
-    color: '#ec4899', // Pink
-    targetPerMonth: 26,
-    description: 'Eat whole foods, vegetables, fruits and avoid junk/sugary snacks',
-  },
-  {
-    id: 'h6',
-    name: '10 Mins Meditation',
-    category: 'Mindfulness',
-    emoji: 'smile',
-    color: '#8b5cf6', // Violet
-    targetPerMonth: 20,
-    description: 'Mindful breathing, reflection or gentle stretch before bedtime',
-  },
-  {
-    id: 'h7',
-    name: 'Sleep by 11 PM (7-8 hrs)',
-    category: 'Lifestyle',
-    emoji: 'moon',
-    color: '#14b8a6', // Teal
-    targetPerMonth: 28,
-    description: 'Consistent sleep schedule for optimal energy and recovery',
-  },
 ];
 
 export function buildHabitsFromStarterIds(selectedIds: string[]): Habit[] {

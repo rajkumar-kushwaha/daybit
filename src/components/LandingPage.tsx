@@ -394,33 +394,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           No confusing points, coins, or clutter. Just a clean view of your month, your streaks, and your daily progress.
         </p>
 
-        {/* CTA row — delay 300ms */}
-        <div
-          className="hero-anim flex flex-col sm:flex-row items-center justify-center gap-3 mb-14"
-          style={{ animationDelay: '300ms' }}
-        >
-          <button
-            onClick={onStartApp}
-            className="relative group w-full sm:w-auto px-7 py-3.5 rounded-2xl font-extrabold text-sm text-white overflow-hidden cursor-pointer active:scale-95 transition-transform"
-            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ef4444 100%)', boxShadow: '0 6px 28px rgba(249,115,22,0.42)' }}
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Open Daybit — Free Forever
-              <ArrowRight className="w-4 h-4" />
-            </span>
-            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, #d97706 0%, #ea580c 60%, #dc2626 100%)' }} />
-          </button>
-          {onOpenAuth && (
-            <button
-              onClick={onOpenAuth}
-              className="text-sm font-semibold text-slate-400 hover:text-white px-5 py-3.5 rounded-2xl border border-slate-700/60 hover:border-slate-500 transition-all cursor-pointer"
-              style={{ background: 'rgba(255,255,255,0.03)' }}
-            >
-              Sign in to sync →
-            </button>
-          )}
-        </div>
-
         {/* INTERACTIVE MOCKUP — delay 450ms + floating bob */}
         <div
           className="hero-anim max-w-2xl mx-auto text-left relative mt-2"
@@ -780,7 +753,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-16 text-center">
         <div ref={revealCta} className="reveal">
           <div
-            className="p-10 sm:p-14 rounded-3xl relative overflow-hidden"
+            className="p-8 sm:p-12 rounded-3xl relative overflow-hidden"
             style={{
               background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(249,115,22,0.08) 50%, rgba(10,14,28,0.95) 100%)',
               border: '1px solid rgba(245,158,11,0.18)',
@@ -792,26 +765,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="absolute inset-0 pointer-events-none"
               style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(245,158,11,0.1) 0%, transparent 70%)' }}
             />
+            {/* Small flame icon */}
+            <div className="relative flex items-center justify-center mb-4">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{
+                  background: 'rgba(245,158,11,0.12)',
+                  border: '1px solid rgba(245,158,11,0.25)',
+                  boxShadow: '0 0 20px rgba(245,158,11,0.15)',
+                }}
+              >
+                <Flame className="w-5 h-5 text-amber-400" />
+              </div>
+            </div>
             <h2 className="relative text-2xl sm:text-4xl font-black text-white tracking-tight mb-3">
               Ready to start your streak?
             </h2>
-            <p className="relative text-xs sm:text-sm text-slate-400 max-w-md mx-auto mb-8">
+            <p className="relative text-xs sm:text-sm text-slate-400 max-w-md mx-auto mb-7">
               It takes less than 30 seconds to set up your first habit. Free forever.
             </p>
             <div className="relative flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 onClick={onStartApp}
-                className="relative group w-full sm:w-auto px-8 py-4 rounded-2xl font-extrabold text-sm text-white overflow-hidden cursor-pointer active:scale-95 transition-transform"
+                className="relative group w-full sm:w-auto px-8 py-3.5 rounded-2xl font-extrabold text-sm text-white overflow-hidden cursor-pointer active:scale-95 transition-transform"
                 style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 60%, #ef4444 100%)', boxShadow: '0 8px 32px rgba(249,115,22,0.45)' }}
               >
-                <span className="relative z-10">Open Daybit App — Start Free</span>
+                <span className="relative z-10 flex items-center gap-2">
+                  Open Daybit App — Start Free
+                  <ArrowRight className="w-4 h-4" />
+                </span>
                 <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" style={{ background: 'linear-gradient(135deg, #d97706 0%, #ea580c 60%, #dc2626 100%)' }} />
               </button>
               {onOpenAuth && (
-                <button onClick={onOpenAuth} className="text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer">
+                <button
+                  onClick={onOpenAuth}
+                  className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-5 py-3.5 rounded-2xl border border-slate-700/60 hover:border-amber-500/40 transition-all cursor-pointer"
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                >
                   Already tracking? Sign In to Sync →
                 </button>
               )}
+            </div>
+            {/* Trust badges */}
+            <div className="relative flex items-center justify-center gap-5 mt-6 text-xs text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                100% Free
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                No sign-up required
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                Works offline
+              </span>
             </div>
           </div>
         </div>
@@ -823,32 +831,64 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <footer
         id="landing-footer"
         className="relative z-10 mt-6 backdrop-blur-md"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5,7,20,0.85)' }}
+        style={{ borderTop: '1px solid rgba(255,255,255,0.07)', background: 'rgba(5,7,20,0.92)' }}
       >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center gap-3">
-              <img src="/icons/flame-emblem.png" alt="Daybit" className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]" />
-              <div className="flex items-center font-black tracking-[-0.035em] text-xl leading-none">
-                <span className="text-white">Day</span>
-                <span style={{ background: 'linear-gradient(90deg,#fbbf24,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>bit</span>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-14 pb-8">
+
+          {/* Top row: Brand + Nav links */}
+          <div
+            className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10 pb-10"
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            {/* Brand */}
+            <div className="flex flex-col gap-3 max-w-xs">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/icons/flame-emblem.png"
+                  alt="Daybit"
+                  className="w-9 h-9 object-contain drop-shadow-[0_0_14px_rgba(245,158,11,0.4)]"
+                />
+                <div className="flex items-center font-black tracking-[-0.035em] text-2xl leading-none">
+                  <span className="text-white">Day</span>
+                  <span style={{ background: 'linear-gradient(90deg,#fbbf24,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>bit</span>
+                </div>
               </div>
-              <span className="hidden sm:inline-block text-slate-700 mx-1">|</span>
-              <span className="text-xs text-slate-500 hidden sm:inline-block">Build better habits, one day at a time.</span>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Build better habits, one day at a time.<br />
+                Free forever. No sign-up needed.
+              </p>
             </div>
-            <div className="flex items-center gap-6 text-xs font-medium text-slate-500">
-              <a href="#how-it-works" className="hover:text-amber-400 transition-colors">How it works</a>
-              <a href="#features" className="hover:text-amber-400 transition-colors">Features</a>
-              <a href="#faq" className="hover:text-amber-400 transition-colors">FAQ</a>
-              <button onClick={onStartApp} className="text-amber-400/90 hover:text-amber-300 font-semibold transition-colors cursor-pointer">Start Free →</button>
+
+            {/* Nav columns */}
+            <div className="flex flex-wrap gap-10 text-xs font-medium">
+              <div className="flex flex-col gap-3">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-slate-600">Product</span>
+                <a href="#how-it-works" className="text-slate-400 hover:text-amber-400 transition-colors">How it works</a>
+                <a href="#features" className="text-slate-400 hover:text-amber-400 transition-colors">Features</a>
+                <a href="#faq" className="text-slate-400 hover:text-amber-400 transition-colors">FAQ</a>
+              </div>
+              <div className="flex flex-col gap-3">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-slate-600">Get Started</span>
+                <button onClick={onStartApp} className="text-left text-amber-400/90 hover:text-amber-300 font-semibold transition-colors cursor-pointer">Start Free →</button>
+                {onOpenAuth && (
+                  <button onClick={onOpenAuth} className="text-left text-slate-400 hover:text-amber-400 transition-colors cursor-pointer">Sign In to Sync</button>
+                )}
+                <button onClick={scrollToTop} className="text-left text-slate-400 hover:text-amber-400 transition-colors cursor-pointer">Back to top ↑</button>
+              </div>
             </div>
           </div>
-          <div className="pt-6 flex items-center justify-between text-xs text-slate-600">
-            <p>© 2026 Daybit</p>
-            <button onClick={scrollToTop} className="hover:text-amber-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
-              <span>Back to top</span>
-              <ArrowUp className="w-3.5 h-3.5" />
-            </button>
+
+          {/* Bottom row */}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+            <p>© 2026 Daybit · Built with ❤️ for habit builders everywhere</p>
+            <div className="flex items-center gap-4">
+              <span
+                className="px-2.5 py-1 rounded-full border text-[10px] font-bold tracking-wider"
+                style={{ borderColor: 'rgba(16,185,129,0.25)', color: '#34d399', background: 'rgba(16,185,129,0.07)' }}
+              >
+                100% FREE FOREVER
+              </span>
+            </div>
           </div>
         </div>
       </footer>

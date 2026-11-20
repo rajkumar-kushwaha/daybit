@@ -646,6 +646,11 @@ export default function App() {
         <LandingPage
           onStartApp={() => {
             localStorage.setItem(LANDING_SEEN_KEY, 'true');
+            // Always show SetupScreen when coming from landing (Option A)
+            if (!user) {
+              localStorage.removeItem(SETUP_STORAGE_KEY);
+              setIsSetupComplete(false);
+            }
             setShowLandingPage(false);
             if (typeof window !== 'undefined' && window.history.replaceState) {
               const url = new URL(window.location.href);
