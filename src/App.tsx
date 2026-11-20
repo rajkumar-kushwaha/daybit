@@ -641,13 +641,16 @@ export default function App() {
 
   // Show Landing Page on-demand or for first-time visitors
   if (showLandingPage) {
+    // Was setup already done before the user navigated to landing?
+    const alreadySetup = isSetupComplete || !!user;
+
     return (
       <>
         <LandingPage
           onStartApp={() => {
             localStorage.setItem(LANDING_SEEN_KEY, 'true');
-            // Always show SetupScreen when coming from landing (Option A)
-            if (!user) {
+            // Only force setup for genuine first-time users (never completed setup)
+            if (!user && !alreadySetup) {
               localStorage.removeItem(SETUP_STORAGE_KEY);
               setIsSetupComplete(false);
             }
@@ -663,7 +666,7 @@ export default function App() {
             setIsAuthModalOpen(true);
           }}
           onBackToApp={
-            isSetupComplete || user
+            alreadySetup
               ? () => {
                   setShowLandingPage(false);
                 }
