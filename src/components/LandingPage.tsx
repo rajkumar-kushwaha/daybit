@@ -10,6 +10,8 @@ import {
   BookOpen,
   Activity,
   Droplet,
+  Menu,
+  X as XIcon,
 } from 'lucide-react';
 
 // ─── 3D Tilt Hook ───────────────────────────────────────────────────────────
@@ -105,6 +107,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     water: false,
   });
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // ── Scroll state: parallax + progress bar ──
   const [scrollY, setScrollY] = useState(0);
@@ -313,6 +316,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8 lg:gap-9 text-[17px] font-medium text-slate-300">
             <a href="#how-it-works" className="relative group hover:text-white transition-colors duration-200">
               How it works
@@ -330,12 +334,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <div className="flex items-center gap-2.5 sm:gap-3">
             {onBackToApp && (
-              <button onClick={onBackToApp} className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
+              <button onClick={onBackToApp} className="hidden sm:block text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
                 Back to Tracker
               </button>
             )}
             {onOpenAuth && (
-              <button onClick={onOpenAuth} className="text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
+              <button onClick={onOpenAuth} className="hidden sm:block text-sm font-semibold text-slate-300 hover:text-white px-2.5 py-1.5 transition-colors cursor-pointer">
                 Sign In
               </button>
             )}
@@ -348,8 +352,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <ArrowRight className="w-3.5 h-3.5 relative z-10" />
               <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" style={{ background: 'linear-gradient(135deg, #d97706 0%, #ea580c 100%)' }} />
             </button>
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              onClick={() => setMobileNavOpen(v => !v)}
+              aria-label="Menu"
+            >
+              {mobileNavOpen ? <XIcon className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile dropdown nav */}
+        {mobileNavOpen && (
+          <div
+            className="md:hidden border-t border-white/[0.06] px-5 py-4 flex flex-col gap-4 text-sm font-medium text-slate-300 animate-fade-in"
+            style={{ background: 'rgba(7,9,26,0.97)' }}
+          >
+            <a href="#how-it-works" onClick={() => setMobileNavOpen(false)} className="hover:text-amber-400 transition-colors">How it works</a>
+            <a href="#features" onClick={() => setMobileNavOpen(false)} className="hover:text-amber-400 transition-colors">Features</a>
+            <a href="#faq" onClick={() => setMobileNavOpen(false)} className="hover:text-amber-400 transition-colors">FAQ</a>
+            {onOpenAuth && (
+              <button onClick={() => { setMobileNavOpen(false); onOpenAuth(); }} className="text-left hover:text-amber-400 transition-colors cursor-pointer">Sign In to Sync</button>
+            )}
+            {onBackToApp && (
+              <button onClick={() => { setMobileNavOpen(false); onBackToApp(); }} className="text-left hover:text-amber-400 transition-colors cursor-pointer">Back to Tracker</button>
+            )}
+          </div>
+        )}
       </header>
 
       {/* ════════════════════════════════════
@@ -859,7 +889,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Nav columns */}
-            <div className="flex flex-wrap gap-10 text-xs font-medium">
+            <div className="flex flex-wrap gap-8 sm:gap-10 text-xs font-medium w-full md:w-auto">
               <div className="flex flex-col gap-3">
                 <span className="text-[10px] font-bold tracking-widest uppercase text-slate-600">Product</span>
                 <a href="#how-it-works" className="text-slate-400 hover:text-amber-400 transition-colors">How it works</a>

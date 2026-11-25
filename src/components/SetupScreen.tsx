@@ -118,14 +118,14 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs transition-colors duration-300">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-xs transition-colors duration-300">
       {/* Subtle ambient lighting */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
       </div>
 
       <div
-        className={`relative w-full max-w-md rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 ${fadeClass}`}
+        className={`relative w-full max-w-md rounded-t-3xl sm:rounded-2xl bg-white dark:bg-[#0f172a] border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-8 max-h-[92vh] overflow-y-auto overscroll-contain ${fadeClass}`}
       >
         {/* Close Button (if opened from dashboard) */}
         {onClose && (
@@ -259,7 +259,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({
             </div>
 
             {/* Clean Habit List */}
-            <div className="space-y-2 max-h-[260px] overflow-y-auto pr-0.5">
+            <div className="space-y-2 max-h-[40vh] sm:max-h-[260px] overflow-y-auto pr-0.5 overscroll-contain">
               {STARTER_HABIT_OPTIONS.map((habit) => {
                 const isSelected = selectedHabitIds.includes(habit.id);
                 return (

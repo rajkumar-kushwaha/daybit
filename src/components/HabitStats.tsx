@@ -9,7 +9,7 @@ interface HabitStatsProps {
 
 export const HabitStats: React.FC<HabitStatsProps> = ({ summary, monthName }) => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
       {/* 1. Completion Rate */}
       <div className="bg-white dark:bg-[#0f1422] p-3.5 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xs hover:border-emerald-500/40 dark:hover:border-emerald-500/40 hover:shadow-md transition-all duration-200 ease-in-out flex flex-col justify-between">
         <div>
