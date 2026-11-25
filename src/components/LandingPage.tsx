@@ -6,7 +6,6 @@ import {
   Flame,
   Smartphone,
   ArrowRight,
-  ArrowUp,
   Check,
   BookOpen,
   Activity,
