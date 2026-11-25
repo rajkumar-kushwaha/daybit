@@ -102,14 +102,6 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({
     );
   };
 
-  const handleSelectAllHabits = () => {
-    if (selectedHabitIds.length === STARTER_HABIT_OPTIONS.length) {
-      setSelectedHabitIds([]);
-    } else {
-      setSelectedHabitIds(STARTER_HABIT_OPTIONS.map((h) => h.id));
-    }
-  };
-
   const handleSelectTheme = (selected: Theme, e: React.MouseEvent) => {
     if (theme !== selected) {
       onToggleTheme(e);
@@ -262,15 +254,8 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({
             </div>
 
             {/* Quick Toggle Row */}
-            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400">
-              <span>{selectedHabitIds.length} selected</span>
-              <button
-                type="button"
-                onClick={handleSelectAllHabits}
-                className="text-xs text-emerald-600 dark:text-emerald-400 font-medium hover:underline cursor-pointer"
-              >
-                {selectedHabitIds.length === STARTER_HABIT_OPTIONS.length ? 'Deselect all' : 'Select all'}
-              </button>
+            <div className="flex items-center px-1 text-xs text-slate-500 dark:text-slate-400">
+              <span>{selectedHabitIds.length} of {STARTER_HABIT_OPTIONS.length} selected</span>
             </div>
 
             {/* Clean Habit List */}

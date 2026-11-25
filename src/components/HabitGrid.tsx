@@ -692,12 +692,15 @@ export const HabitGrid: React.FC<HabitGridProps> = ({
 
               {/* Habit Cards */}
               {habits.length === 0 ? (
-                <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm">
-                  <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1">No habits yet</p>
-                  <p className="text-xs mb-3">Tap "+ Add Habit" to start building your routine!</p>
+                <div className="text-center py-14 px-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                  <div className="text-4xl mb-3">🌱</div>
+                  <p className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">No habits yet</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 max-w-[220px] mx-auto leading-relaxed">
+                    Add your first habit and start building a streak today!
+                  </p>
                   <button
                     onClick={onOpenAddModal}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all cursor-pointer shadow-sm shadow-emerald-600/30"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-all cursor-pointer shadow-md shadow-emerald-600/25"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add Your First Habit</span>
@@ -909,12 +912,15 @@ export const HabitGrid: React.FC<HabitGridProps> = ({
               )}
 
               {habits.length === 0 ? (
-                <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm">
-                  <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1">No habits found</p>
-                  <p className="text-xs mb-3">Add habits to track your monthly progress!</p>
+                <div className="text-center py-14 px-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
+                  <div className="text-4xl mb-3">📅</div>
+                  <p className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Nothing to track yet</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 max-w-[220px] mx-auto leading-relaxed">
+                    Add habits to see your monthly progress grid here.
+                  </p>
                   <button
                     onClick={onOpenAddModal}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all cursor-pointer shadow-sm shadow-emerald-600/30"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-all cursor-pointer shadow-md shadow-emerald-600/25"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add Habit</span>
@@ -1302,9 +1308,15 @@ export const HabitGrid: React.FC<HabitGridProps> = ({
                 <tr>
                   <td
                     colSpan={days.length + 4}
-                    className="px-6 py-12 text-center text-slate-500 dark:text-slate-400 text-sm font-medium"
+                    className="px-6 py-14 text-center"
                   >
-                    No habits found. Click <strong className="text-emerald-600 dark:text-emerald-400">"Add Habit"</strong> above to start tracking!
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-3xl">📋</span>
+                      <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">No habits to show</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[200px] leading-relaxed">
+                        Add your first habit to start tracking your streaks.
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
